@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.js"
+            integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+            crossorigin="anonymous"></script>
+    <script
+            src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
+            crossorigin="anonymous"></script>
+    <title>Ментальная арифметика</title>
+</head>
+
+<style>
+    #menar {
+        display: none;
+        margin-top: 5px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    :root {
+        --green: #4CAF50;
+        --blue: #008CBA;
+        --red: #ff3366;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Helvetica, serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-right: 5px;
+        padding-left: 5px;
+        line-height: 1.5;
+        font-size: 16px;
+    }
+
+    ul {
+        list-style-type: none;
+    }
+
+    @media screen and (max-width: 680px) {
+        .settings-item, .button, .button-group div{
+            width: 100% !important;
+        }
+    }
+
+    @media screen and (max-width: 500px) {
+        .settings-item, .button, .button-group div {
+            width: 100% !important;
+        }
+        .mobile-count {
+            width: calc(33% - 10px) !important;
+
+        }
+
+        .button-group {
+            margin-bottom: 10px !important;
+        }
+
+        #bomb {
+            margin-bottom: 20px !important;
+        }
+
+        .wrap-sky, .wrap-earth {
+            width: 280px !important;
+            padding-right: 30px !important;
+
+        }
+
+        .flexible {
+            display: none !important;
+        }
+
+    }
+
+    #numbers {
+        min-height: 200px;
+        min-width: 300px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 32px;
+        text-align: center;
+    }
+
+    #soroban-trainer {
+        display: none;
+        margin-top: 10px;
+        margin-bottom: 40px;
+    }
+
+    .wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Настройки */
+
+    .settings {
+        width: 100%;
+    }
+
+    .settings ul  {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        list-style-type: none;
+    }
+
+    .settings-item {
+        width: calc(13% - 10px);
+        position: relative;
+        text-align: center;
+        margin: 5px;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+
+    .settings-item img {
+        margin-top: 5px;
+    }
+
+    .settings-item a .logo {
+        height: 70px;
+    }
+
+    .settings label {
+        display: block;
+    }
+
+    .settings label img {
+        height: 25px;
+    }
+
+    .settings-item input, select {
+        display: block;
+        border: 2px solid cornflowerblue;
+        text-align: center;
+        border-radius: 3px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        width: 100%;
+        text-align-last:center;
+    }
+
+    option {
+        text-align-last:center;
+    }
+
+    option {
+        text-align: center;
+    }
+
+    /* число */
+
+    .number {
+        font-size: 48px;
+        font-weight: bold;
+        text-align: center;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid black
+    }
+
+    .answer {
+        text-align: center;
+        border-radius: 3px;
+        border: 2px solid cornflowerblue;
+        cursor: pointer;
+        font-size: 2rem;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        width: calc(100% - 12px);
+        margin-bottom: 15px;
+    }
+
+    .button-group {
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    #bomb {
+        transition-property: all;
+        transition-duration: 1s;
+    }
+
+    #bomb:hover {
+        -webkit-transform:scale(1.2); /*Webkit: Scale up image to 1.2x original size*/
+        -moz-transform:scale(1.2); /*Mozilla scale version*/
+        -o-transform:scale(1.2); /*Opera scale version*/
+        transition-delay: 0s;
+    }
+
+    button {
+        border: none;
+    }
+
+    .button {
+        color: white;
+        text-align: center;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        margin: 5px;
+        text-transform: uppercase;
+        width: calc(50% - 15px);
+    }
+
+    .green {
+        background-color: var(--green);
+    }
+
+    .blue {
+        background-color: var(--blue);
+    }
+
+    .green-color {
+        color: var(--green);
+    }
+
+    .blue-color {
+        color: var(--blue);
+    }
+
+    /* Переключатель */
+
+    .switch-wrap {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+    }
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+        margin-top: 15px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0px;
+        left: 0;
+        right: 0;
+        bottom: 0px;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+    /* Соробан */
+
+    .wrap-sky {
+        position: relative;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-evenly;
+        width: 800px;
+        height: 100px;
+        border: 3px solid black;
+        margin: 0 auto;
+    }
+
+    .wrap-earth {
+        position: relative;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-evenly;
+        width: 800px;
+        height: 220px;
+        border: 3px solid black;
+        margin: 0 auto;
+    }
+
+    .column {
+        border-right: 2px solid black;
+        width: 35px;
+    }
+
+    .box {
+        position: absolute;
+        background-image: url("http://razvitie-intellekta.ru/f/bead_inactive.png");
+        background-size: 100%;
+        background-position: center center; /* Положение фона */
+        background-repeat: no-repeat; /* Отменяем повторение фона */
+        bottom: 0;
+        margin: 0;
+        width: 70px;
+        height: 40px;
+    }
+
+    .sky {
+        top: 20px;
+    }
+
+</style>
+<body>
+<div class="wrap">
+    <div class="settings">
+        <ul>
+            <li class="settings-item">
+                <label for="select_level">Ступень: </label>
+                <select id="select_level">
+                    <option value="0">1</option>
+                </select>
+            </li>
+
+            <li class="settings-item">
+                <label for="select_page">Страница: </label>
+                <select id="select_page"></select>
+            </li>
+
+            <li class="settings-item">
+                <label for="select_string">Строчка: </label>
+                <select id="select_string"></select>
+            </li>
+
+            <li class="settings-item mobile-count">
+                <label for="select_page" class="blue-color">&#35;</label>
+                <div id="current"></div>
+            </li>
+
+            <li class="settings-item mobile-count">
+                <label for="select_page" class="green-color">&#10004;</label>
+                <div id="completed"></div>
+            </li>
+
+
+            <li class="settings-item mobile-count">
+                <img id="menar" src="http://razvitie-intellekta.ru/f/menar_0.jpg" width="100" alt="">
+                <div class="switch-wrap" itemtype="switcher">
+                    <label class="switch" itemtype="switcher">
+                        <input type="checkbox">
+                        <span class="slider round" id="switcher"></span>
+                    </label>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div id="numbers">Выберите&nbsp;сложность и&nbsp;нажмите "Новый&nbsp;пример"</div>
+
+    <!-- Соробан -->
+    <div id="soroban-trainer">
+        <div id="soroban-5" class="wrap-sky"></div>
+        <div id="soroban" class="wrap-earth"></div>
+    </div>
+
+    <input id="input-answer" type="number" class="answer" placeholder="введите ответ">
+
+    <div class="button-group">
+        <button id="answer" class="button green">Ответить</button>
+        <button id="start" class="button blue" >Новый пример</button>
+    </div>
+
+</div>
+</body>
+
+<script>
+    let index = 0;
+    let right_counter = 0;
+    let current_counter = 0;
+    let toggle_soroban = false;
+    let page_amount = 0;
+    let string_amount = 0;
+    let arr_nums = [];
+
+
+    let level_1 = [
+        [
+            [1, 1, 2], [2, 2, 4], [3, 3, 6], [4, 4, 8], [5, 5, 10], [6, 6, 12], [7, 7, 14], [8, 8, 16], [9, 9, 18], [10, 10, 20]
+        ]
+    ];
+
+    let level_2 = [
+            [
+                [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [14, 14], [35, 35], [84, 84], [54, 54], [72, 72], [82, 82], [35, 35], [95, 95], [25, 25], [42, 642], [27, 27], [41, 41], [66, 66], [33, 33], [15, 15], [75, 75], [92, 92], [831, 831], [245, 245], [129, 129], [849, 849], [621, 621], [317, 317], [512, 512], [351, 351], [645, 645], [384, 384], [483, 483], [129, 129], [348, 348], [517, 517], [299, 299], [123, 123], [975, 975], [761, 761], [972, 972], [483, 483], [391, 391], [972, 972], [715, 715]
+            ]
+    ];
+
+            let notebook_nums = [level_1, level_2];
+
+    window.onload = () => {
+        page_amount = notebook_nums[$('#select_level').val()].length;
+        string_amount = notebook_nums[$('#select_level').val()][$('#select_level').val()].length/10;
+
+        create_sky();
+        create_earth();
+
+        make_settings_page();
+        make_settings_string();
+        reset_settings();
+        draw_earth_beans();
+    };
+
+    const create_sky = () => {
+        for (let i = 0; i < 6; i++) {
+            $('#soroban-5').append(`
+                <div class="column">
+                    <div id="${i}5" class="box sky"></div>
+                </div>
+            `);
+            if (i >= 3) $(`#${i}5`).parent().addClass('flexible');
+        }
+    };
+
+    const create_earth = () => {
+        for (let i = 0; i < 6; i++) {
+            $('#soroban').append(`<div id="column-${i}" class="column"></div>`);
+            for (let j = 3; j >= 0; j--) {
+                $(`#column-${i}`).append(`<div id="${i}${j}" class="box"></div>`);
+            }
+            if (i >= 3) $(`#column-${i}`).addClass('flexible');
+        }
+    };
+
+    const reset_settings = () => {
+        index = 0;
+        right_counter = 0;
+        current_counter = 0;
+
+        let temp = [];
+        arr_nums = [];
+
+        if ($('#select_level').val() < 2) {
+            $('#bomb').css('display', 'block');
+            page_amount = notebook_nums[$('#select_level').val()].length;
+            string_amount = notebook_nums[$('#select_level').val()][$('#select_page').val() - 1].length/10;
+            temp = notebook_nums[$('#select_level').val()][$('#select_page').val() - 1];
+        }
+
+        for (let i = $('#select_string').val()*10 - 10; i < $('#select_string').val()*10; i++) {
+            arr_nums.push(temp[i])
+        }
+
+        $('#completed').text(`${right_counter}`);
+    };
+    const make_settings_page = () => {
+        $('#select_page').html('');
+
+        for (let i = 1; i <= page_amount; i++) {
+            $('#select_page').append(`<option value="${i}">${i}</option>`);
+        }
+    };
+
+    const make_settings_string = () => {
+        $('#select_string').html('');
+        for (let i = 1; i <= string_amount; i++) {
+            $('#select_string').append(`<option value="${i}">${i}</option>`);
+        }
+    };
+    const mental_card = (n) => {
+        if (n === -1) {
+            $('#menar').css('display', 'none');
+            $('.switch-wrap').css('display', 'inline-block');
+            console.log('no mental');
+        }
+        else if (string_amount === parseInt($('#select_string').val()) || string_amount - n === parseInt($('#select_string').val())) {
+            $('#menar').css('display', 'block');
+            $('.switch-wrap').css('display', 'none');
+            if (toggle_soroban === true) $('#switcher').trigger('click');
+            console.log(toggle_soroban);
+        }
+        else {
+            $('#menar').css('display', 'none');
+            $('.switch-wrap').css('display', 'inline-block');
+        }
+    };
+    start = () => {
+        reset_soroban();
+        if ($('#select_level').val() > 1) {
+            mental_card(1);
+        }
+        else if ($('#select_level').val() == 0 && $('#select_page').val() < 3) {
+            mental_card(-1);
+        }
+        else mental_card(0);
+
+    $('#answer').prop('disabled', false);
+        $('#input-answer').prop('disabled', false);
+        $('#bomb').prop('disabled', false);
+
+        $('#input-answer').focus();
+
+        $('#numbers').css('color', 'black');
+        $('#input-answer').val('');
+
+      //  console.log(arr_nums);
+        if (index >= arr_nums.length) {
+            $('#numbers').text(`Правильно: ${right_counter} из ${arr_nums.length}`);
+        }
+        else $('#numbers').html('');
+
+        for (let i = 0; i < arr_nums[index].length - 1; i++) {
+            $('#numbers').append(`<div class="number"> ${arr_nums[index][i]} </div>`);
+        }
+
+        index++;
+        current_counter++;
+        $('#current').text(`${current_counter} из ${arr_nums.length}`);
+    };
+
+    answer = () => {
+        if ($('#input-answer').val() === arr_nums[index - 1][arr_nums[index - 1].length - 1].toString() || toggle_soroban === true &&  sum === arr_nums[index - 1][arr_nums[index - 1].length - 1]) {
+            $('#input-answer').val('');
+            $('#numbers').css('color', 'var(--green)');
+            right_counter++;
+
+            $('#answer').prop('disabled', true);
+            $('#input-answer').prop('disabled', true);
+        }
+        else {
+            $('#numbers').css('color', 'var(--red)');
+        }
+
+        $('#completed').text(`${right_counter}`);
+    };
+
+    $('#switcher').click(() => {
+        toggle_soroban = toggle_soroban !== true;
+        if (toggle_soroban === true) {
+            $('#soroban-trainer').css('display', 'block');
+            $('#input-answer').css('display', 'none');
+        }
+        else {
+            $('#soroban-trainer').css('display', 'none');
+            $('#input-answer').css('display', 'block');
+        }
+    });
+
+    $('#start').click(() => start());
+    $('#answer').click(() => answer());
+    $('#input-answer').keypress(() => { if (event.keyCode === 13) answer()});
+
+    let toggle_bead = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]];
+    let toggle_bead_5 = [[false], [false], [false], [false], [false], [false]];
+    let sum = 0;
+    let bottom = 20;
+
+    const move_bead = (x, y) => {
+        let temp_bottom = 0;
+        if (toggle_bead[x][y] === true) {
+            temp_bottom = parseInt($(`#${x}${y}`).css('bottom')) + 35;
+            sum += 10 ** parseInt(`${x}`);
+        }
+        if (toggle_bead[x][y] === false) {
+            temp_bottom = parseInt($(`#${x}${y}`).css('bottom')) - 35;
+            sum -= 10 ** parseInt(`${x}`);
+        }
+        $(`#${x}${y}`).css('bottom', temp_bottom);
+    };
+
+    const draw_earth_beans = () => {
+        for (let i = 3; i >= 0; i--) {
+            for (let j = 0; j < 6; j++) {
+                $(`#${j}${i}`).css('bottom', bottom).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_inactive.png")');
+            }
+            bottom += 40;
+        }
+    };
+
+    const reset_soroban = () => {
+        toggle_bead = [[false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false], [false, false, false, false]];
+        toggle_bead_5 = [[false], [false], [false], [false], [false], [false]];
+        sum = 0;
+        bottom = 20;
+
+        draw_earth_beans();
+
+        for (let i = 0; i < 6; i++) {
+            $(`#${i}${5}`).css('top', 20).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_inactive.png")');
+        }
+    };
+
+    $('#soroban').click((event) => {
+        let x = 0;
+        let y = 0;
+
+        x = $(`#${event.target.id}`).prop('id')[0];
+        y = $(`#${event.target.id}`).prop('id')[1];
+
+        if (toggle_bead[x][y] === false) {
+            for (let i = y; i >= 0; i--) {
+                toggle_bead[x][i] = true;
+                if ((parseInt($(`#${x}${i}`).css('bottom')) % 10 === 0)) {
+                    $(`#${x}${i}`).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_active.png")');
+                    move_bead(x, i);
+                }
+            }
+        }
+
+        else if (toggle_bead[x][y] === true) {
+            for (let i = y; i < 4; i++) {
+                toggle_bead[x][i] = false;
+                if (!(parseInt($(`#${x}${i}`).css('bottom')) % 10 === 0)) {
+                    $(`#${x}${i}`).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_inactive.png")');
+                    move_bead(x, i);
+                }
+            }
+        }
+    });
+
+    $('#soroban-5').click((event) => {
+        let x = 0;
+        let y = 0;
+        let temp_bottom = 0;
+
+        x = $(`#${event.target.id}`).prop('id')[0];
+        y = $(`#${event.target.id}`).prop('id')[1];
+
+        toggle_bead_5[x][y] = toggle_bead_5[x][y] !== true;
+
+        if (toggle_bead_5[x][y] === true) {
+            $(`#${x}${y}`).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_active.png")');
+            temp_bottom = parseInt($(`#${x}${y}`).css('top')) + 35;
+            sum += 10 ** parseInt(`${x}`)*5;
+        }
+
+        if (toggle_bead_5[x][y] === false) {
+            $(`#${x}${y}`).css('background-image', 'url("http://razvitie-intellekta.ru/f/bead_inactive.png")');
+            temp_bottom = parseInt($(`#${x}${y}`).css('top')) - 35;
+            sum -= 10 ** parseInt(`${x}`)*5;
+        }
+
+        $(`#${x}${y}`).css('top', temp_bottom);
+    });
+</script>
+</html>
